@@ -47,4 +47,24 @@ var supportedCommands = map[string]cliCommand{
 		description: "catch a pokemon",
 		callback:    commandCatch,
 	},
+	"inspect": {
+		name:        "inspect",
+		description: "inspect pokemon",
+		callback:    commandInspect,
+	},
+	"pokedex": {
+		name:        "pokedex",
+		description: "list pokemon in pokedex",
+		callback:    commandPokedex,
+	},
+	"save": {
+		name:        "save",
+		description: "save pokedex",
+		callback:    commandSave,
+	},
+	"load": {
+		name:        "load",
+		description: "loads previous game",
+		callback:    commandLoad,
+	},
 }

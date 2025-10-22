@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/kaiengelmann/pokedexcli/internal/pokeapi"
 )
 
-func getStats(cfg *Config, args []string) (string, int, error) {
+func getStats(cfg *Config, args []string) (pokeapi.Pokemon, int, error) {
 	if len(args) == 0 {
-		return "", 1, fmt.Errorf("please provide a pokemon to catch")
+		return pokeapi.Pokemon{}, 1, fmt.Errorf("please provide a pokemon to catch")
 	}
 
 	pokeName := args[0]
@@ -16,10 +18,8 @@ func getStats(cfg *Config, args []string) (string, int, error) {
 
 	attemptPokemon, err := cfg.PokeClient.CheckPokemon(url)
 	if err != nil {
-		return "", 1, fmt.Errorf("failed to find Pokemon: %w", err)
+		return pokeapi.Pokemon{}, 1, fmt.Errorf("failed to find Pokemon")
 	}
-
-	fmt.Printf("Exploring area: %s (ID: %d)\n", attemptPokemon.Name, attemptPokemon.ID)
 
 	hp := 0
 	for _, s := range attemptPokemon.Stats {
@@ -29,7 +29,7 @@ func getStats(cfg *Config, args []string) (string, int, error) {
 		}
 	}
 
-	return attemptPokemon.Name, hp, nil
+	return attemptPokemon, hp, nil
 }
 
 func throwBall(HP int) bool {
@@ -41,17 +41,17 @@ func throwBall(HP int) bool {
 }
 
 func commandCatch(cfg *Config, args []string) error {
-	name, hp, err := getStats(cfg, args)
+	attemptPokemon, hp, err := getStats(cfg, args)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return err
+		return nil
 	}
+	name := attemptPokemon.Name
 	fmt.Printf("Throwing a Pokeball at %s...\n", name)
 	time.Sleep(1 * time.Second)
 	if throwBall(hp) {
 		fmt.Printf("You caught %s!\n", name)
-		attemptPokemon, _ := cfg.PokeClient.CheckPokemon(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", name))
-		pokedex = append(pokedex, Pokedex{pokemon: attemptPokemon})
+		cfg.Pokedex = append(cfg.Pokedex, Pokedex{pokemon: attemptPokemon})
 	} else {
 		fmt.Printf("%s escaped!\n", name)
 	}
