@@ -12,7 +12,11 @@ func commandSave(cfg *Config, args []string) error {
 		pokemon_names = append(pokemon_names, entries.pokemon.Name)
 	}
 	data := []byte(strings.Join(pokemon_names, "\n"))
-	filename := "pokedex_entry.txt"
+	saved_name := ""
+	if len(args) > 0 {
+		saved_name = args[0]
+	}
+	filename := "pokedex_entry_" + saved_name + ".txt"
 	permissions := os.FileMode(0644)
 	err := os.WriteFile(filename, data, permissions)
 	if err != nil {
